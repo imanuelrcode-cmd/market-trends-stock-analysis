@@ -1,0 +1,22 @@
+Initial Project Milestones
+	Phase 1
+		- Create repository structure
+		- Configure Docker environment
+		- Deploy Kafka locally
+		- Create first API ingestion pipeline
+	Phase 2
+		- Stream data into Kafka topics
+		- Persist raw datasets
+		- Create Spark processing jobs
+	Phase 3
+		- Build Airflow orchestration
+		- Create analytics datasets
+		- Begin visualization layer
+	Phase 4
+		- Implement prediction/insight models
+		- Optimize pipelines
+		- Finalize dashboards and documentation
+
+______________________________________________________________________
+Status:
+	Project currently in architecture and planning stage.

@@ -1,0 +1,9 @@
+pandas
+numpy
+requests
+kafka-python
+pyspark
+apache-airflow
+pymongo
+boto3
+python-dotenv
