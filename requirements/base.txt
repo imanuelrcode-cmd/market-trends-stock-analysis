@@ -1,0 +1,10 @@
+
+pandas
+numpy
+yfinance
+pyspark
+kafka-python
+apache-airflow
+pydantic
+pyyaml
+requests

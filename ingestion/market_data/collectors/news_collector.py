@@ -1,1 +1,0 @@
-print("news_collector placeholder")
