@@ -171,6 +171,16 @@ signal families become large enough to deserve clear ownership boundaries.
   attempting fine-grained per-asset or per-route intelligence models.
 - Optimize version 1 for a coherent end-to-end course demonstration rather than
   maximum analytical sophistication.
+- Treat the first Docker-based Kafka stack as a development and demo
+  environment, not as a claim of production-grade operations.
+- Prefer Kafka in KRaft mode for new infrastructure work unless a specific
+  course deliverable requires demonstrating ZooKeeper-based Kafka.
+- Prefer a first local Kafka topology with 3 brokers for replication-oriented
+  learning and demonstration.
+- Prefer Apache Kafka upstream Docker images for the initial Kafka environment
+  so the project stays close to the open-source, vanilla Kafka distribution.
+- Prefer default service ports internally and keep host-port remapping easy so
+  the local stack can adapt as more services are added later.
 
 ## Suggested Next Decisions
 

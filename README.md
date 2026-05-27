@@ -38,7 +38,6 @@ project-root/
 |   |-- standardized/
 |   |-- curated/
 |   `-- analytics/
-|-- docker/
 |-- docs/
 |   |-- architecture/
 |   |-- data_contracts/
