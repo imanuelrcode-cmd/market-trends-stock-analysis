@@ -1,196 +1,155 @@
-
 # Project Structure Reference
 
+This document describes the intended repository layout during the scaffold
+phase. It reflects the current folder structure, not the exploratory draft code.
+
+## Top-Level Design
+
+The repository is organized around:
+
+- business domains
+- shared platform utilities
+- layered data storage
+- orchestration and streaming boundaries
+- infrastructure and documentation
+
 ## domains/
-Contains business domains. Each domain owns its ingestion, transformations, schemas, and services.
+
+Contains business-aligned areas of ownership. Each domain can eventually own
+its own ingestion, transformations, schemas, validations, and services.
 
 ### market_data/
-Handles stock prices, OHLCV data, options data, and financial metadata.
 
-- ingestion/
-  Fetches external data from APIs like Yahoo Finance.
+Owns stock prices, OHLCV data, ticker metadata, and related market datasets.
 
-- transformations/
-  Cleans and normalizes incoming data.
-
-- schemas/
-  Defines data contracts and validation schemas.
-
-- validation/
-  Quality checks and integrity validation.
-
-- services/
-  Business operations and orchestration logic.
-
-- configs/
-  Domain-specific settings and parameters.
+- `ingestion/`: external market-data collection
+- `transformations/`: cleaning and normalization
+- `schemas/`: contracts and validation rules
+- `validation/`: data-quality checks
+- `services/`: domain orchestration logic
+- `configs/`: domain-specific settings
 
 ### trends/
-Handles market trends and external trend signals.
+
+Owns trend and public-interest signals such as keyword popularity or related
+search activity.
 
 ### news/
-Handles news ingestion and news processing pipelines.
+
+Reserved for news ingestion and event-oriented content processing.
 
 ### sentiment/
-Handles NLP pipelines, sentiment scoring, and sentiment models.
+
+Reserved for NLP pipelines, scoring logic, and future model assets.
 
 ### macro/
-Handles macroeconomic indicators and economic datasets.
 
----
+Reserved for macroeconomic indicators and broader economic datasets.
 
-## data_lake/
-Centralized storage lifecycle.
+## data/
+
+Represents the storage lifecycle for datasets and analytical outputs.
 
 ### raw/
-Immutable source data exactly as collected.
+
+Immutable source data captured as close as possible to the original input.
 
 ### standardized/
-Normalized and cleaned datasets.
+
+Normalized datasets with consistent schemas and naming.
 
 ### curated/
-Feature-engineered and business-ready datasets.
+
+Business-ready datasets, features, and enriched outputs.
 
 ### analytics/
-Aggregated insights, reports, and predictions.
+
+Reports, derived insights, correlation outputs, or model-ready extracts.
 
 ### models/
-Serialized ML models and training artifacts.
 
----
+Serialized model artifacts or experiment outputs when the project reaches that
+stage.
 
 ## streaming/
-Kafka and event streaming architecture.
 
-### producers/
-Publish events into streaming infrastructure.
+Reserved for event-driven components and Kafka-oriented contracts.
 
-### consumers/
-Consume and process stream events.
-
-### contracts/
-Message schemas and event contracts.
-
-### topics/
-Topic definitions and streaming metadata.
-
----
+- `producers/`: event publishers
+- `consumers/`: event consumers
+- `contracts/`: message schemas
+- `topics/`: topic definitions and metadata
 
 ## orchestration/
-Workflow scheduling and pipeline coordination.
 
-### jobs/
-Standalone executable jobs.
+Reserved for workflow scheduling and pipeline coordination.
 
-### pipelines/
-Multi-step orchestration workflows.
+- `jobs/`: standalone runnable jobs
+- `pipelines/`: multi-step flows
+- `schedules/`: scheduling metadata
+- `airflow/`: Airflow DAGs and plugins
 
-### schedules/
-Scheduling metadata and cron definitions.
+## processing/
 
-### airflow/
-Airflow DAGs and plugins.
-
----
+Reserved for shared transformation or compute-heavy processing stages that do
+not fit cleanly inside a single domain.
 
 ## shared/
-Reusable cross-domain utilities.
 
-### logging/
-Centralized logging utilities.
+Reusable utilities intended to stay domain-agnostic.
 
-### configs/
-Shared configuration loading.
-
-### exceptions/
-Custom exceptions and error handling.
-
-### monitoring/
-Metrics and observability helpers.
-
-### utils/
-Generic reusable utility functions.
-
-### clients/
-Shared API/database client wrappers.
-
----
+- `logging/`: logging helpers and logging-related assets
+- `configs/`: shared configuration loading
+- `exceptions/`: common exception types
+- `monitoring/`: metrics and observability helpers
+- `utils/`: generic utilities
+- `clients/`: reusable wrappers for external systems
 
 ## infrastructure/
-Infrastructure-as-code and deployment definitions.
 
-### docker/
-Dockerfiles and compose configurations.
+Reserved for deployment and platform setup assets.
 
-### aws/
-AWS infrastructure definitions.
-
-### terraform/
-Terraform IaC modules.
-
-### kubernetes/
-Kubernetes manifests and deployment files.
-
----
-
-## tests/
-Testing strategy separated by scope.
-
-### unit/
-Small isolated tests.
-
-### integration/
-Cross-service and pipeline tests.
-
-### performance/
-Benchmarking and load testing.
-
----
-
-## notebooks/
-Research and experimentation only.
-
-### exploration/
-EDA and data understanding.
-
-### experiments/
-Temporary experiments and prototyping.
-
----
+- `docker/`: container build assets
+- `aws/`: cloud-specific definitions
+- `terraform/`: infrastructure-as-code modules
+- `kubernetes/`: manifests and deployment resources
 
 ## docs/
-Technical documentation.
 
-### architecture/
-Architecture diagrams and decisions.
+Project documentation and decision support materials.
 
-### data_contracts/
-Data schema documentation.
+- `architecture/`: architecture decisions and diagrams
+- `data_contracts/`: dataset and event contract documentation
+- `runbooks/`: operational notes
+- `drafts/`: working notes while the design is still evolving
 
-### runbooks/
-Operational and troubleshooting guides.
+## notebooks/
 
----
+Exploration-only area for research, validation, and experiments.
+
+- `exploration/`: EDA and quick validation
+- `experiments/`: temporary prototypes
+
+## tests/
+
+Reserved for tests once supported workflows are formalized.
+
+- `unit/`: isolated tests
+- `integration/`: cross-component tests
+- `performance/`: benchmarking and load-oriented tests
 
 ## configs/
-Environment-level configuration.
 
-### local/
-Local developer settings.
+Environment-level configuration separated from implementation code.
 
-### dev/
-Development environment settings.
-
-### prod/
-Production environment settings.
-
----
+- `local/`: local developer settings
+- `dev/`: shared development settings
+- `prod/`: production-oriented settings
 
 ## requirements/
-Dependency management.
 
-### base.txt
-Core dependencies.
+Dependency placeholders during scaffolding.
 
-### dev.txt
-Development and testing dependencies.
+- `requirements.txt`: root entrypoint
+- `requirements/base.txt`: future runtime dependencies
+- `requirements/dev.txt`: future development-only dependencies

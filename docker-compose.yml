@@ -1,24 +1,8 @@
-version: '3.9'
+# Placeholder compose file for the scaffold stage.
+#
+# Real services should be added only after the first supported local workflow
+# is defined. Until then, this file exists to reserve the deployment boundary
+# without implying that Kafka, MongoDB, or any other infrastructure is already
+# part of the supported developer experience.
 
-services:
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
+services: {}

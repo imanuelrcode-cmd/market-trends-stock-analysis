@@ -1,31 +1,4 @@
-# Data processing
-pandas
-numpy
+# Root dependency entrypoint for the scaffold stage.
+# Intentionally minimal until the first supported workflow is implemented.
 
-# API requests
-requests
-
-## Data Sources
-# Trend analysis
-pytrends
-
-# Yahoo Financial data
-yfinance
-
-# Streaming
-kafka-python
-
-# Distributed processing
-pyspark
-
-# Workflow orchestration
-apache-airflow
-
-# Database
-pymongo
-
-# Cloud
-boto3
-
-# Environment management
-python-dotenv
+-r requirements/base.txt

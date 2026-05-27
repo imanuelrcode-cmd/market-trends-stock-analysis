@@ -1,10 +1,2 @@
-
-pandas
-numpy
-yfinance
-pyspark
-kafka-python
-apache-airflow
-pydantic
-pyyaml
-requests
+# Runtime dependencies will be added once the project has a supported pipeline.
+# This file is intentionally empty during the scaffolding phase.

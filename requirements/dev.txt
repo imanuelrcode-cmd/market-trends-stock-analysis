@@ -1,6 +1,4 @@
+-r base.txt
 
-pytest
-black
-flake8
-mypy
-jupyter
+# Development-only dependencies will be added when testing, linting,
+# notebooks, or other supported workflows are introduced.
