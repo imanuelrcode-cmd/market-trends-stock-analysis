@@ -74,3 +74,26 @@ committed implementation roadmap.
 - compare intraday price movement against event spikes
 - build a baseline for "normal" activity before anomaly detection
 - start with correlation and monitoring before prediction
+
+## Current Front-Runner Scope
+
+### First External Sources
+
+- shipping and vessel activity
+- airline and flight activity
+- Google Trends trending snapshots
+
+### First Market Universe
+
+- indexes: S&P 500, Nasdaq 100, Tel Aviv 125
+- commodities: gold, silver, oil, wheat
+- FX: USD/ILS, EUR/ILS, JPY/ILS, GBP/ILS
+
+### Initial Practical Notes
+
+- Version 1 should use a unified 10-minute polling and aggregation cadence.
+- Google Trends trending data fits well into a 10-minute snapshot schedule.
+- Shipping and airline sources are likely most useful initially as aggregated
+  activity signals, anomaly signals, and region/time-window counts.
+- The first implementation should optimize for end-to-end demonstrability as a
+  data engineering course project, not for maximum model accuracy.
