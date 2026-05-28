@@ -98,7 +98,7 @@ not fit cleanly inside a single domain.
 
 Reusable utilities intended to stay domain-agnostic.
 
-- `logging/`: logging helpers and logging-related assets
+- `logging/`: shared logging configuration and logger helpers
 - `configs/`: shared configuration loading
 - `exceptions/`: common exception types
 - `monitoring/`: metrics and observability helpers

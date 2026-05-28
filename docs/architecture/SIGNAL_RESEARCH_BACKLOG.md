@@ -68,6 +68,21 @@ committed implementation roadmap.
 - standardize instrument identifiers where possible
 - capture expected latency and refresh frequency for each source
 
+## Source Discovery Channels
+
+- direct public APIs where available
+- library-backed unofficial sources such as pytrends
+- RapidAPI marketplace for shipping, airline, news, macro, and alternative
+  market-data provider discovery
+
+## RapidAPI Exploration Targets
+
+- shipping and vessel activity APIs
+- flight status, route, and airport activity APIs
+- news and event feed APIs
+- macroeconomic calendar or indicator APIs
+- commodity, FX, or alternative market-data APIs
+
 ## Possible First Research Tracks
 
 - track one or two instruments plus one event source family
@@ -95,5 +110,7 @@ committed implementation roadmap.
 - Google Trends trending data fits well into a 10-minute snapshot schedule.
 - Shipping and airline sources are likely most useful initially as aggregated
   activity signals, anomaly signals, and region/time-window counts.
+- If RapidAPI providers are tested, capture provider-specific metadata,
+  response-shape differences, and cost constraints from the start.
 - The first implementation should optimize for end-to-end demonstrability as a
   data engineering course project, not for maximum model accuracy.

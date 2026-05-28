@@ -51,6 +51,9 @@ data ingestion, movement, orchestration, storage, processing, and analysis.
   time, collection time, and market time.
 - Prefer raw data retention first, with transformations added only after source
   behavior is understood.
+- Use shared project logging instead of ad hoc `print(...)` statements so
+  ingestion jobs remain observable under Airflow, containers, and future log
+  collection.
 
 ## Target Instruments
 
@@ -121,6 +124,8 @@ For the first version of the platform:
 - collect top Google Trends snapshots rather than trying to infer exact search
   counts
 - start with correlation and lag monitoring before attempting prediction
+- use RapidAPI as a candidate source-discovery channel when direct public APIs
+  are not practical for shipping, airline, news, or macro signals
 
 ## Business Domains
 
@@ -156,6 +161,25 @@ signal families become large enough to deserve clear ownership boundaries.
 - Google Trends snapshots should be collected on a 10-minute cadence, which
   matches the source's approximate refresh rhythm well enough for version 1.
 
+## Logging Strategy
+
+Use `shared/logging/` as the project-wide logging interface.
+
+- Configure logging once at process entry points with `configure_logging(...)`.
+- Use module-level loggers from `get_logger(__name__)`.
+- Emit logs to `stdout` so Airflow, Docker, cloud runtimes, and log shippers can
+  collect them.
+- Use structured `extra={...}` fields for source names, regions, tickers,
+  output paths, row counts, and rate-limit metadata.
+- Use `logger.exception(...)` when handling exceptions, then re-raise unless a
+  partial failure is intentionally allowed.
+- Avoid `print(...)` in ingestion, orchestration, and reusable project code.
+- Use `MARKET_TRENDS_LOG_FORMAT=json` when structured log collection becomes
+  useful.
+
+For the detailed convention, see
+[Logging Strategy](LOGGING_STRATEGY.md).
+
 ## Current Agreements
 
 - Ignore draft implementation details when discussing architecture.
@@ -163,12 +187,16 @@ signal families become large enough to deserve clear ownership boundaries.
 - Keep dependency files minimal until a supported workflow exists.
 - Keep Git clean by ignoring logs, generated data, local environments, and
   notebook artifacts.
+- Keep logging centralized through `shared/logging/`; collectors should not
+  create their own unrelated logging configuration.
 - Treat broad event collection and correlation monitoring as first-class goals,
   not just stock-price ingestion.
 - Favor flexible schemas and source metadata so new signal types can be added
   without redesigning the whole repository.
 - Prefer aggregated activity indicators first for shipping and airlines before
   attempting fine-grained per-asset or per-route intelligence models.
+- Treat RapidAPI as a marketplace for evaluating third-party providers, not as
+  proof of source quality or long-term stability by itself.
 - Optimize version 1 for a coherent end-to-end course demonstration rather than
   maximum analytical sophistication.
 - Treat the first Docker-based Kafka stack as a development and demo
@@ -190,6 +218,8 @@ signal families become large enough to deserve clear ownership boundaries.
 - Decide how Google Trends snapshots should be stored and versioned.
 - Map each course tool to a deliberate role in the architecture.
 - Define a common timestamp and metadata strategy across all sources.
+- Decide which RapidAPI provider categories are worth trialing first for
+  shipping, airline, news, or macro ingestion.
 - Decide what qualifies as raw, standardized, and curated output.
 - Decide when Kafka, Spark, Airflow, and Docker become justified rather than
   aspirational.

@@ -13,6 +13,7 @@ than it demonstrates predictive-model quality.
 - show raw and processed storage layers
 - show transformation and aggregation
 - show queryable outputs or monitoring outputs
+- show structured logging for ingestion runs and failures
 - show a believable analytical use case, even if predictive accuracy is modest
 
 ## Preferred Tool Story
@@ -64,7 +65,7 @@ to the open-source Kafka distribution taught in the course.
 - use a unified 10-minute polling cadence
 - prefer aggregated activity signals over fine-grained entity intelligence
 - start with a limited market universe
-- prioritize observability and data lineage over prediction complexity
+- prioritize observability, logging, and data lineage over prediction complexity
 - treat predictions as optional or exploratory
 
 ## Anti-Goals For Version 1

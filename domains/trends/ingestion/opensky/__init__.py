@@ -1,0 +1,3 @@
+"""
+OpenSky ingestion package.
+"""

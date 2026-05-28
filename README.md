@@ -101,3 +101,6 @@ project design has settled.
 Use [docs/architecture/PROJECT_CONTEXT.md](docs/architecture/PROJECT_CONTEXT.md)
 as the durable reference for future brainstorming sessions and architectural
 decisions.
+
+The project logging convention is documented in
+[docs/architecture/LOGGING_STRATEGY.md](docs/architecture/LOGGING_STRATEGY.md).

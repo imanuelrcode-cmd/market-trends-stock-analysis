@@ -5,6 +5,10 @@ import time
 import pandas as pd
 import yfinance as yf
 
+from shared.logging import configure_logging, get_logger
+
+logger = get_logger(__name__)
+
 
 # ==========================================
 # CONFIG
@@ -30,6 +34,7 @@ OUTPUT_DIR = Path("storage/raw/stocks")
 
 def ensure_output_dir():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    logger.debug("Ensured output directory exists", extra={"output_dir": str(OUTPUT_DIR)})
 
 
 def download_ticker_data(ticker: str) -> pd.DataFrame:
@@ -37,7 +42,10 @@ def download_ticker_data(ticker: str) -> pd.DataFrame:
     Download historical stock data using yfinance.
     """
 
-    print(f"Downloading {ticker}...")
+    logger.info(
+        "Downloading ticker data",
+        extra={"ticker": ticker, "period": PERIOD, "interval": INTERVAL},
+    )
 
     df = yf.download(
         tickers=ticker,
@@ -48,7 +56,7 @@ def download_ticker_data(ticker: str) -> pd.DataFrame:
     )
 
     if df.empty:
-        print(f"No data returned for {ticker}")
+        logger.warning("No data returned for ticker", extra={"ticker": ticker})
         return df
 
     df.reset_index(inplace=True)
@@ -71,7 +79,10 @@ def save_to_csv(df: pd.DataFrame, ticker: str):
 
     df.to_csv(file_path, index=False)
 
-    print(f"Saved: {file_path}")
+    logger.info(
+        "Saved ticker data to CSV",
+        extra={"ticker": ticker, "file_path": str(file_path), "row_count": len(df)},
+    )
 
 
 # ==========================================
@@ -79,6 +90,7 @@ def save_to_csv(df: pd.DataFrame, ticker: str):
 # ==========================================
 
 def main():
+    configure_logging(service_name="yfinance_collector")
 
     ensure_output_dir()
 
@@ -90,8 +102,8 @@ def main():
             if not df.empty:
                 save_to_csv(df, ticker)
 
-        except Exception as e:
-            print(f"Error processing {ticker}: {e}")
+        except Exception:
+            logger.exception("Error processing ticker", extra={"ticker": ticker})
 
         # Small delay to avoid rate limiting
         time.sleep(2)

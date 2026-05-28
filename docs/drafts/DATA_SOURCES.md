@@ -63,6 +63,34 @@ Used to collect:
 
 ---
 
+# 3. RapidAPI Marketplace
+
+## Tool
+- RapidAPI
+
+### Website
+https://rapidapi.com
+
+### Purpose
+Used to discover and test third-party APIs for:
+- shipping and vessel activity
+- airline and flight activity
+- news and event feeds
+- macroeconomic calendars and indicators
+- alternative market, commodity, or FX datasets
+
+### Why It Fits This Project
+- gives one place to explore multiple providers quickly
+- can accelerate early prototyping when direct public APIs are limited
+- helps compare source options across several signal families
+
+### Important Notes
+- RapidAPI is a source marketplace, not a single canonical dataset
+- pricing, rate limits, uptime, and schemas vary by provider
+- each adopted API should still be evaluated for stability, coverage, and data quality
+
+---
+
 # Optional Future Sources
 
 ## Alpha Vantage
@@ -100,6 +128,9 @@ Version 1 of the project should focus on:
 | Stock Prices | yfinance |
 
 This minimizes architectural complexity while still enabling meaningful analysis.
+
+RapidAPI should be treated as an optional source-discovery path for future
+shipping, airline, news, macro, and alternative market-signal experiments.
 
 ---
 

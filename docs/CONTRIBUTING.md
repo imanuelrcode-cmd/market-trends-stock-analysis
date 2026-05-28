@@ -16,6 +16,21 @@ implementation code.
   supported workflow.
 - Add tests when a workflow becomes stable enough to support them.
 
+## Logging
+
+- Use `shared.logging.get_logger(__name__)` inside Python modules.
+- Configure logging once from runnable entry points with
+  `shared.logging.configure_logging(...)`.
+- Prefer `logger.info(...)`, `logger.warning(...)`, and
+  `logger.exception(...)` over `print(...)`.
+- Include useful context with `extra={...}` fields, but never log secrets,
+  tokens, or full authorization headers.
+- Keep logs on `stdout` so Airflow, Docker, and future log collection can
+  capture them consistently.
+
+See [Logging Strategy](architecture/LOGGING_STRATEGY.md) for the full project
+convention.
+
 ## Before Opening a PR
 
 - Confirm the repository structure still matches the docs.
