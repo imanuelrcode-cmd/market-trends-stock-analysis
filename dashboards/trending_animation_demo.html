@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animated Trending Searches Demo</title>
+  <link rel="stylesheet" href="./trending_animation_demo.css">
+</head>
+<body>
+  <main class="dashboard-shell" data-testid="trends-animation-demo">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Market Trends Demo</p>
+        <h1>Animated Trending Searches</h1>
+      </div>
+      <div class="topbar-actions" aria-label="Demo metadata">
+        <span class="status-pill">Mock Trend + Market Data</span>
+        <span class="status-pill accent">Google Trends Shape</span>
+      </div>
+    </header>
+
+    <section class="metric-strip" aria-label="Current trend summary">
+      <article>
+        <span>Snapshot</span>
+        <strong id="snapshotLabel">Day 1</strong>
+      </article>
+      <article>
+        <span>Leader</span>
+        <strong id="leaderLabel">Nvidia</strong>
+      </article>
+      <article>
+        <span>Top Signal</span>
+        <strong id="topSignalLabel">84</strong>
+      </article>
+      <article>
+        <span>Focus Term</span>
+        <strong id="focusTermLabel">Nvidia</strong>
+      </article>
+      <article>
+        <span>S&amp;P 500 Close</span>
+        <strong id="sp500CloseLabel">6,250.14</strong>
+      </article>
+      <article>
+        <span>NVDA Close</span>
+        <strong id="nvdaCloseLabel">$141.22</strong>
+      </article>
+    </section>
+
+    <section class="main-grid">
+      <section class="stage-panel" aria-label="Animated trend words">
+        <div class="stage-header">
+          <div>
+            <span id="activeDate">Jun 1, 2026</span>
+            <h2 id="activeTitle">Day 1</h2>
+          </div>
+          <output id="topCountOutput" for="topCountRange">Top 5</output>
+        </div>
+
+        <div id="wordStage" class="word-stage" aria-live="polite"></div>
+      </section>
+
+      <aside class="side-panel" aria-label="Trend ranking and focus chart">
+        <div>
+          <h2>Ranking</h2>
+          <div id="leaderboard" class="leaderboard"></div>
+        </div>
+
+        <div class="chart-panel">
+          <div class="chart-header">
+            <h2 id="chartTitle">Market Close Comparison</h2>
+            <span id="chartRange">S&amp;P 500 + NVDA</span>
+          </div>
+          <div id="chartLegend" class="chart-legend" aria-label="Comparison chart legend"></div>
+          <svg id="trendChart" class="trend-chart" viewBox="0 0 460 180" role="img" aria-label="Selected trend score over time"></svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="control-panel" aria-label="Animation controls">
+      <div class="transport">
+        <button id="playToggle" class="icon-button primary" type="button" aria-label="Pause animation">
+          <span id="playIcon">Pause</span>
+        </button>
+        <button id="prevStep" class="icon-button" type="button" aria-label="Previous day">Prev</button>
+        <button id="nextStep" class="icon-button" type="button" aria-label="Next day">Next</button>
+      </div>
+
+      <div class="timeline-wrap">
+        <div id="timeline" class="timeline" aria-label="Trend snapshots"></div>
+        <input id="daySlider" class="day-slider" type="range" min="0" max="6" value="0" aria-label="Current snapshot">
+      </div>
+
+      <div class="settings">
+        <label>
+          Top X
+          <input id="topCountRange" type="range" min="3" max="6" value="5">
+        </label>
+        <label>
+          Speed
+          <select id="speedSelect">
+            <option value="320">Calm</option>
+            <option value="180" selected>Demo</option>
+            <option value="90">Fast</option>
+          </select>
+        </label>
+      </div>
+    </section>
+  </main>
+
+  <script src="./trending_animation_sample_data.js"></script>
+  <script src="./trending_animation_demo.js"></script>
+</body>
+</html>
