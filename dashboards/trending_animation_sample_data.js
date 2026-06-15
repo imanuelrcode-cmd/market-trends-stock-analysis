@@ -192,6 +192,8 @@
     const aiScore = trends.find((trend) => trend.word === "Artificial Intelligence")?.score ?? 70;
     const dataCenterScore = trends.find((trend) => trend.word === "Data Centers")?.score ?? 60;
     const semiconductorScore = trends.find((trend) => trend.word === "Semiconductors")?.score ?? 60;
+    const interestRatesScore = trends.find((trend) => trend.word === "Interest Rates")?.score ?? 45;
+    const oilScore = trends.find((trend) => trend.word === "Oil Prices")?.score ?? 40;
 
     const sp500Close = 5850
       + dayIndex * 1.55
@@ -207,9 +209,41 @@
       + (nvidiaScore - 70) * 0.55
       + (dataCenterScore - 60) * 0.24;
 
+    const financialsClose = 42
+      + dayIndex * 0.024
+      + Math.sin(dayIndex / 35) * 1.45
+      + Math.sin(dayIndex / 88) * 1.1
+      + (interestRatesScore - 45) * 0.06
+      + (sp500Close - 5850) * 0.0021;
+
+    const energyClose = 86
+      + dayIndex * 0.014
+      + Math.sin(dayIndex / 24) * 2.9
+      + Math.sin(dayIndex / 71) * 3.2
+      + (oilScore - 40) * 0.28;
+
+    const healthcareClose = 146
+      + dayIndex * 0.055
+      + Math.sin(dayIndex / 46) * 2.15
+      + Math.sin(dayIndex / 117) * 2.4
+      - (interestRatesScore - 45) * 0.035
+      + Math.max(0, 60 - aiScore) * 0.05;
+
+    const utilitiesClose = 66
+      + dayIndex * 0.012
+      + Math.sin(dayIndex / 58) * 1.95
+      - (interestRatesScore - 45) * 0.11
+      + Math.sin(dayIndex / 19) * 0.9;
+
     return {
       sp500Close: round(sp500Close),
       nvdaClose: round(nvdaClose),
+      sectorEtfs: {
+        financials: round(financialsClose),
+        energy: round(energyClose),
+        healthcare: round(healthcareClose),
+        utilities: round(utilitiesClose),
+      },
     };
   }
 

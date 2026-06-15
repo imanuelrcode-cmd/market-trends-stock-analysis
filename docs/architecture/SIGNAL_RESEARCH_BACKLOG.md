@@ -43,6 +43,8 @@ committed implementation roadmap.
 - event sentiment
 - topic clustering
 - narrative momentum
+- curated trend theme labels, such as "AI attention wave" or "Nvidia earnings
+  attention"
 
 ## Core Research Questions
 
@@ -67,6 +69,18 @@ committed implementation roadmap.
 - store timezone information explicitly
 - standardize instrument identifiers where possible
 - capture expected latency and refresh frequency for each source
+- keep dashboard theme labels out of raw ingestion; add them only in curated or
+  enriched datasets
+
+## Theme Labeling Ideas
+
+- start with deterministic rules that map dominant terms or term groups to a
+  readable theme label
+- include supporting terms and related instruments so labels are explainable
+- track whether a label is a continuation of the previous phase or a new theme
+- later evaluate a LangGraph or LLM helper for richer labels using trends, news,
+  market movement, and recent phase history
+- store confidence and evidence fields with any generated label
 
 ## Source Discovery Channels
 
@@ -89,6 +103,8 @@ committed implementation roadmap.
 - compare intraday price movement against event spikes
 - build a baseline for "normal" activity before anomaly detection
 - start with correlation and monitoring before prediction
+- prototype curated theme labels for dashboard readability without implying
+  predictive certainty
 
 ## Current Front-Runner Scope
 

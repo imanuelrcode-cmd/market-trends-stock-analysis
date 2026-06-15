@@ -14,16 +14,77 @@ const termColors = new Map([
   ["Oil Prices", "#ff9866"],
 ]);
 
+const marketSeriesCatalog = [
+  {
+    color: "#56b6ff",
+    description: "Broad market reference",
+    formatter: formatIndex,
+    getValue: (snapshot) => snapshot.market?.sp500Close,
+    id: "sp500",
+    label: "S&P 500",
+    width: 3,
+  },
+  {
+    color: "#29c95a",
+    description: "Nvidia stock close",
+    formatter: formatUsd,
+    getValue: (snapshot) => snapshot.market?.nvdaClose,
+    id: "nvda",
+    label: "NVDA",
+    width: 3,
+  },
+  {
+    color: "#f2d16b",
+    description: "Financials sector ETF",
+    formatter: formatUsd,
+    getValue: (snapshot) => snapshot.market?.sectorEtfs?.financials,
+    id: "financials",
+    label: "Financials ETF",
+    width: 5,
+  },
+  {
+    color: "#ff9866",
+    description: "Energy sector ETF",
+    formatter: formatUsd,
+    getValue: (snapshot) => snapshot.market?.sectorEtfs?.energy,
+    id: "energy",
+    label: "Energy ETF",
+    width: 5,
+  },
+  {
+    color: "#ff6f9e",
+    description: "Healthcare sector ETF",
+    formatter: formatUsd,
+    getValue: (snapshot) => snapshot.market?.sectorEtfs?.healthcare,
+    id: "healthcare",
+    label: "Healthcare ETF",
+    width: 5,
+  },
+  {
+    color: "#46e0c2",
+    description: "Utilities sector ETF",
+    formatter: formatUsd,
+    getValue: (snapshot) => snapshot.market?.sectorEtfs?.utilities,
+    id: "utilities",
+    label: "Utilities ETF",
+    width: 5,
+  },
+];
+
 const state = {
   index: 0,
   topCount: 5,
   speedMs: 180,
   selectedTerm: "Nvidia",
+  selectedSeries: new Set(["financials", "energy", "healthcare", "utilities"]),
+  selectedNarrativeIndex: null,
+  showPriceReadout: true,
   playing: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   timer: null,
 };
 
 const elements = {
+  activeSeriesReadout: document.querySelector("#activeSeriesReadout"),
   activeDate: document.querySelector("#activeDate"),
   activeTitle: document.querySelector("#activeTitle"),
   chartRange: document.querySelector("#chartRange"),
@@ -35,6 +96,10 @@ const elements = {
   leaderboard: document.querySelector("#leaderboard"),
   playIcon: document.querySelector("#playIcon"),
   playToggle: document.querySelector("#playToggle"),
+  narrativeDetail: document.querySelector("#narrativeDetail"),
+  readoutToggle: document.querySelector("#readoutToggle"),
+  seriesControls: document.querySelector("#seriesControls"),
+  seriesCountLabel: document.querySelector("#seriesCountLabel"),
   snapshotLabel: document.querySelector("#snapshotLabel"),
   sp500CloseLabel: document.querySelector("#sp500CloseLabel"),
   speedSelect: document.querySelector("#speedSelect"),
@@ -99,8 +164,34 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
+function wordStageTextWidth(stageWidth) {
+  return Math.max(180, stageWidth - 22);
+}
+
+function longestTokenLength(word) {
+  return word
+    .split(/\s+/)
+    .filter(Boolean)
+    .reduce((longest, token) => Math.max(longest, token.length), 1);
+}
+
+function planWordTypography(word, score, stageWidth) {
+  const rawSize = clamp(26 + score * 0.48, 34, 70);
+  const usableWidth = wordStageTextWidth(stageWidth);
+  const singleLineCap = usableWidth / (longestTokenLength(word) * 0.54);
+  const canShrinkWithoutFeelingTiny = singleLineCap >= 40;
+  const fontSize = canShrinkWithoutFeelingTiny
+    ? Math.min(rawSize, singleLineCap)
+    : rawSize;
+
+  return {
+    fontSize,
+    wordWidth: `${usableWidth}px`,
+  };
+}
+
 function estimateWordLines(word, fontSize, stageWidth) {
-  const usableWidth = Math.max(220, stageWidth - 64);
+  const usableWidth = wordStageTextWidth(stageWidth);
   const averageCharWidth = fontSize * 0.52;
   const maxCharsPerLine = Math.max(9, Math.floor(usableWidth / averageCharWidth));
 
@@ -114,7 +205,7 @@ function estimateWordHeight(word, fontSize, stageWidth) {
 
 function setPlaying(nextPlaying) {
   state.playing = nextPlaying;
-  elements.playIcon.textContent = state.playing ? "Pause" : "Play";
+  elements.playIcon.textContent = state.playing ? "||" : "▶";
   elements.playToggle.setAttribute(
     "aria-label",
     state.playing ? "Pause animation" : "Play animation",
@@ -132,16 +223,57 @@ function setPlaying(nextPlaying) {
 
 function step(direction) {
   state.index = (state.index + direction + trendSnapshots.length) % trendSnapshots.length;
+  state.selectedNarrativeIndex = null;
   render();
 }
 
 function setIndex(index) {
   state.index = clamp(Number(index), 0, trendSnapshots.length - 1);
+  state.selectedNarrativeIndex = null;
   render();
 }
 
 function setSelectedTerm(word) {
   state.selectedTerm = word;
+  render();
+}
+
+function toggleSeries(seriesId) {
+  if (state.selectedSeries.has(seriesId)) {
+    if (state.selectedSeries.size === 1) {
+      render();
+      return;
+    }
+
+    state.selectedSeries.delete(seriesId);
+  } else {
+    state.selectedSeries.add(seriesId);
+  }
+
+  render();
+}
+
+function selectedSeriesConfigs() {
+  const selected = marketSeriesCatalog.filter((item) => state.selectedSeries.has(item.id));
+
+  return selected.length ? selected : marketSeriesCatalog.slice(2, 3);
+}
+
+function setSelectedNarrative(markerIndex) {
+  const markers = getNarrativeMarkers();
+  const marker = markers[markerIndex];
+
+  if (!marker) {
+    return;
+  }
+
+  state.selectedNarrativeIndex = markerIndex;
+  state.index = marker.index;
+  render();
+}
+
+function togglePriceReadout() {
+  state.showPriceReadout = !state.showPriceReadout;
   render();
 }
 
@@ -174,13 +306,13 @@ function renderWords(topTrends) {
   });
 
   const plannedWords = topTrends.map((trend, index) => {
-    const rawSize = 26 + trend.score * 0.48;
-    const fontSize = clamp(rawSize, 34, 70);
+    const typography = planWordTypography(trend.word, trend.score, stageWidth);
     return {
-      fontSize,
+      fontSize: typography.fontSize,
       index,
       trend,
-      wordHeight: estimateWordHeight(trend.word, fontSize, stageWidth),
+      wordHeight: estimateWordHeight(trend.word, typography.fontSize, stageWidth),
+      wordWidth: typography.wordWidth,
     };
   });
 
@@ -190,7 +322,7 @@ function renderWords(topTrends) {
   const scale = clamp(availableHeight / totalHeight, 0.72, 1);
   elements.wordStage.style.setProperty("--word-gap", `${baseGap * scale}px`);
 
-  plannedWords.forEach(({ fontSize, index, trend }) => {
+  plannedWords.forEach(({ fontSize, index, trend, wordWidth }) => {
     let wordElement = elements.wordStage.querySelector(`[data-word="${CSS.escape(trend.word)}"]`);
     if (!wordElement) {
       wordElement = document.createElement("div");
@@ -200,13 +332,14 @@ function renderWords(topTrends) {
       elements.wordStage.append(wordElement);
     }
 
-    const xDrift = index % 2 === 0 ? -10 : 10;
+    const xDrift = index % 2 === 0 ? -4 : 4;
     const scaledFontSize = fontSize * scale;
 
     wordElement.classList.toggle("leader", index === 0);
     wordElement.classList.remove("fade-out");
     wordElement.style.setProperty("--term-color", colorForTerm(trend.word));
     wordElement.style.setProperty("--word-size", `${scaledFontSize}px`);
+    wordElement.style.setProperty("--word-width", wordWidth);
     wordElement.style.setProperty("--word-scale", index === 0 ? "1.04" : "1");
     wordElement.style.setProperty("--word-x", `${xDrift}px`);
     wordElement.style.order = String(index);
@@ -294,38 +427,112 @@ function renderLegend(series) {
   });
 }
 
+function renderSeriesControls() {
+  elements.seriesControls.replaceChildren();
+
+  marketSeriesCatalog.forEach((item) => {
+    const label = document.createElement("label");
+    label.className = "series-toggle";
+    label.classList.toggle("active", state.selectedSeries.has(item.id));
+    label.style.setProperty("--series-color", item.color);
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = state.selectedSeries.has(item.id);
+    input.addEventListener("change", () => toggleSeries(item.id));
+
+    const text = document.createElement("span");
+    const title = document.createElement("strong");
+    title.textContent = item.label;
+
+    const description = document.createElement("span");
+    description.textContent = item.description;
+
+    text.append(title, description);
+
+    const swatch = document.createElement("span");
+    swatch.className = "series-swatch";
+
+    label.append(input, text, swatch);
+    elements.seriesControls.append(label);
+  });
+}
+
+function renderActiveSeriesReadout(series, snapshot) {
+  elements.activeSeriesReadout.replaceChildren();
+  elements.activeSeriesReadout.classList.toggle("hidden", !state.showPriceReadout);
+  elements.readoutToggle.textContent = state.showPriceReadout ? "Hide price cards" : "Show price cards";
+
+  series.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "readout-item";
+    card.style.setProperty("--series-color", item.color);
+
+    const label = document.createElement("span");
+    label.textContent = item.label;
+
+    const value = document.createElement("strong");
+    value.textContent = item.formatter(item.getValue(snapshot));
+
+    card.append(label, value);
+    elements.activeSeriesReadout.append(card);
+  });
+}
+
+function renderNarrativeDetail() {
+  const markers = getNarrativeMarkers();
+  const activeMarker = markers[state.selectedNarrativeIndex]
+    ?? markers.find((marker) => marker.index <= state.index && marker.nextIndex > state.index)
+    ?? markers.find((marker) => marker.index <= state.index);
+
+  if (!activeMarker) {
+    elements.narrativeDetail.classList.remove("visible");
+    elements.narrativeDetail.replaceChildren();
+    return;
+  }
+
+  const label = document.createElement("span");
+  label.textContent = `${formatDate(activeMarker.snapshot.date)} | ${activeMarker.snapshot.label}`;
+
+  const title = document.createElement("strong");
+  title.textContent = activeMarker.toPhase;
+
+  const description = document.createElement("p");
+  description.textContent = activeMarker.fromPhase
+    ? `Narrative shift from "${activeMarker.fromPhase}" into "${activeMarker.toPhase}". Use this as a human-readable checkpoint before comparing sector ETF reactions.`
+    : `Starting narrative: "${activeMarker.toPhase}".`;
+
+  elements.narrativeDetail.replaceChildren(label, title, description);
+  elements.narrativeDetail.classList.add("visible");
+}
+
 function renderChart() {
-  const width = 460;
-  const height = 180;
-  const padding = { top: 18, right: 24, bottom: 38, left: 42 };
+  const width = 920;
+  const height = 420;
+  const padding = { top: 28, right: 30, bottom: 52, left: 54 };
   const innerWidth = width - padding.left - padding.right;
   const innerHeight = height - padding.top - padding.bottom;
   const baseline = padding.top + innerHeight;
-  const sp500Values = trendSnapshots.map((snapshot) => snapshot.market?.sp500Close);
-  const nvdaValues = trendSnapshots.map((snapshot) => snapshot.market?.nvdaClose);
+  const selectedConfigs = selectedSeriesConfigs();
+  const series = selectedConfigs.map((item) => {
+    const rawValues = trendSnapshots.map((snapshot) => item.getValue(snapshot));
 
-  const series = [
-    {
-      color: "#f2d16b",
-      formatter: formatIndex,
-      label: "S&P 500 Close",
-      values: normalize(sp500Values),
-      rawValues: sp500Values,
-      width: 3,
-    },
-    {
-      color: "#29c95a",
-      formatter: formatUsd,
-      label: "NVDA Close",
-      values: normalize(nvdaValues),
-      rawValues: nvdaValues,
-      width: 3,
-    },
-  ];
+    return {
+      ...item,
+      rawValues,
+      values: normalize(rawValues),
+    };
+  });
+  const activeSnapshot = trendSnapshots[state.index];
+  const activeX = padding.left + (state.index / Math.max(1, trendSnapshots.length - 1)) * innerWidth;
 
-  elements.chartTitle.textContent = "Market Close Comparison";
+  elements.chartTitle.textContent = "Sector ETF Overlay";
+  elements.seriesCountLabel.textContent = `${series.length} selected`;
   elements.trendChart.replaceChildren();
+  renderSeriesControls();
   renderLegend(series);
+  renderActiveSeriesReadout(selectedConfigs, activeSnapshot);
+  renderNarrativeDetail();
 
   [0, 50, 100].forEach((score) => {
     const y = baseline - (score / 100) * innerHeight;
@@ -345,21 +552,53 @@ function renderChart() {
     elements.trendChart.append(label);
   });
 
-  const area = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  area.setAttribute("class", "chart-area");
-  area.style.setProperty("--series-color", series[0].color);
-  area.setAttribute(
-    "d",
-    areaPath(
-      series[0].values.map((value, index) => {
-        const x = padding.left + (index / Math.max(1, trendSnapshots.length - 1)) * innerWidth;
-        const y = baseline - (value / 100) * innerHeight;
-        return { x, y, snapshot: trendSnapshots[index] };
-      }),
-      baseline,
-    ),
-  );
-  elements.trendChart.append(area);
+  const markerLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  markerLine.setAttribute("class", "chart-marker-line");
+  markerLine.setAttribute("x1", activeX);
+  markerLine.setAttribute("x2", activeX);
+  markerLine.setAttribute("y1", padding.top);
+  markerLine.setAttribute("y2", baseline);
+  elements.trendChart.append(markerLine);
+
+  getNarrativeMarkers().forEach((marker, markerIndex) => {
+    const x = padding.left + (marker.index / Math.max(1, trendSnapshots.length - 1)) * innerWidth;
+
+    const markerGuide = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    markerGuide.setAttribute("class", "narrative-marker-line");
+    markerGuide.setAttribute("x1", x);
+    markerGuide.setAttribute("x2", x);
+    markerGuide.setAttribute("y1", padding.top);
+    markerGuide.setAttribute("y2", baseline);
+    elements.trendChart.append(markerGuide);
+
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    group.setAttribute("class", "narrative-marker");
+    group.setAttribute("role", "button");
+    group.setAttribute("tabindex", "0");
+    group.setAttribute("aria-label", `Narrative shift to ${marker.toPhase}`);
+    group.setAttribute("transform", `translate(${x}, ${padding.top + 14})`);
+    group.addEventListener("click", () => setSelectedNarrative(markerIndex));
+    group.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        setSelectedNarrative(markerIndex);
+      }
+    });
+
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("r", markerIndex === state.selectedNarrativeIndex ? "11" : "9");
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("dominant-baseline", "central");
+    text.textContent = "i";
+
+    const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+    title.textContent = `${marker.snapshot.label}: ${marker.toPhase}`;
+
+    group.append(circle, text, title);
+    elements.trendChart.append(group);
+  });
 
   series.forEach((item) => {
     const points = item.values.map((value, index) => {
@@ -399,8 +638,8 @@ function renderChart() {
   const valueLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
   valueLabel.setAttribute("class", "chart-value-label");
   valueLabel.setAttribute("x", padding.left);
-  valueLabel.setAttribute("y", 14);
-  valueLabel.textContent = `S&P 500: ${formatIndex(activeMarket.sp500Close)} | NVDA: ${formatUsd(activeMarket.nvdaClose)}`;
+  valueLabel.setAttribute("y", 18);
+  valueLabel.textContent = `${formatDate(trendSnapshots[state.index].date)} | S&P 500: ${formatIndex(activeMarket.sp500Close)} | NVDA: ${formatUsd(activeMarket.nvdaClose)}`;
   elements.trendChart.append(valueLabel);
 }
 
@@ -423,6 +662,32 @@ function getTimelineMarkers() {
   });
 
   return markers;
+}
+
+function getNarrativeMarkers() {
+  const markers = [];
+  let previousPhase = "";
+
+  trendSnapshots.forEach((snapshot, index) => {
+    if (snapshot.phase !== previousPhase) {
+      markers.push({
+        index,
+        nextIndex: trendSnapshots.findIndex((candidate, candidateIndex) => (
+          candidateIndex > index && candidate.phase !== snapshot.phase
+        )),
+        fromPhase: previousPhase,
+        toPhase: snapshot.phase,
+        snapshot,
+      });
+      previousPhase = snapshot.phase;
+    }
+  });
+
+  return markers.map((marker, index) => ({
+    ...marker,
+    nextIndex: marker.nextIndex === -1 ? trendSnapshots.length : marker.nextIndex,
+    markerNumber: index + 1,
+  }));
 }
 
 function renderTimeline() {
@@ -470,6 +735,7 @@ function setupControls() {
     state.speedMs = Number(event.target.value);
     setPlaying(state.playing);
   });
+  elements.readoutToggle.addEventListener("click", togglePriceReadout);
 }
 
 function initTrendAnimationDemo() {

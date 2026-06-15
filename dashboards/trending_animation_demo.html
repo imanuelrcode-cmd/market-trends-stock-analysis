@@ -14,7 +14,8 @@
         <h1>Animated Trending Searches</h1>
       </div>
       <div class="topbar-actions" aria-label="Demo metadata">
-        <span class="status-pill">Mock Trend + Market Data</span>
+        <span class="status-pill">Animation V2</span>
+        <span class="status-pill">Mock Trend + ETF Data</span>
         <span class="status-pill accent">Google Trends Shape</span>
       </div>
     </header>
@@ -57,29 +58,39 @@
         </div>
 
         <div id="wordStage" class="word-stage" aria-live="polite"></div>
-      </section>
 
-      <aside class="side-panel" aria-label="Trend ranking and focus chart">
-        <div>
-          <h2>Ranking</h2>
+        <div class="ranking-block">
+          <h2>Top Trend Terms</h2>
           <div id="leaderboard" class="leaderboard"></div>
         </div>
+      </section>
 
-        <div class="chart-panel">
+      <section class="chart-panel" aria-label="Configurable market comparison chart">
+        <div class="chart-inner">
           <div class="chart-header">
-            <h2 id="chartTitle">Market Close Comparison</h2>
-            <span id="chartRange">S&amp;P 500 + NVDA</span>
+            <div>
+              <span id="chartRange">365 daily closes</span>
+              <h2 id="chartTitle">Sector ETF Overlay</h2>
+            </div>
+            <span class="status-pill accent" id="seriesCountLabel">4 selected</span>
           </div>
+
+          <div id="seriesControls" class="series-controls" aria-label="Dataset selector"></div>
           <div id="chartLegend" class="chart-legend" aria-label="Comparison chart legend"></div>
-          <svg id="trendChart" class="trend-chart" viewBox="0 0 460 180" role="img" aria-label="Selected trend score over time"></svg>
+          <div class="readout-toolbar">
+            <button id="readoutToggle" class="readout-toggle" type="button">Hide price cards</button>
+          </div>
+          <div id="activeSeriesReadout" class="active-series-readout" aria-live="polite"></div>
+          <div id="narrativeDetail" class="narrative-detail" aria-live="polite"></div>
+          <svg id="trendChart" class="trend-chart" viewBox="0 0 920 420" role="img" aria-label="Selected market datasets over time"></svg>
         </div>
-      </aside>
+      </section>
     </section>
 
     <section class="control-panel" aria-label="Animation controls">
       <div class="transport">
         <button id="playToggle" class="icon-button primary" type="button" aria-label="Pause animation">
-          <span id="playIcon">Pause</span>
+          <span id="playIcon" aria-hidden="true">||</span>
         </button>
         <button id="prevStep" class="icon-button" type="button" aria-label="Previous day">Prev</button>
         <button id="nextStep" class="icon-button" type="button" aria-label="Next day">Next</button>

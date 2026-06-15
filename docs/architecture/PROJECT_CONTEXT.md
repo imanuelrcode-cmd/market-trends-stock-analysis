@@ -149,6 +149,34 @@ signal families become large enough to deserve clear ownership boundaries.
 - produce an end-to-end project narrative that clearly showcases data
   engineering capabilities
 
+## Trend Theme Labels
+
+Dashboard labels such as "AI attention wave" or "Semiconductor supply focus"
+should be treated as curated/enriched metadata, not raw ingestion data.
+
+The raw trend layer should preserve what the source returned, plus ingestion
+metadata such as source, region, collection time, and raw payload details. The
+standardized layer can clean terms, timestamps, scores, and source identifiers.
+The curated layer is the right place to add human-readable theme labels,
+summaries, confidence scores, supporting terms, and related instruments.
+
+For early versions, theme labels can be generated with simple deterministic
+rules based on dominant terms and term groups. Later, a LangGraph or LLM-based
+helper may enrich these labels by combining trend terms, market movement, news
+headlines, phase history, and supporting evidence.
+
+Candidate curated output shape:
+
+```json
+{
+  "theme_label": "AI infrastructure attention wave",
+  "summary": "Search attention is shifting from consumer AI terms toward Nvidia, CUDA, and data centers.",
+  "confidence": 0.78,
+  "supporting_terms": ["Nvidia", "CUDA", "Data Centers"],
+  "related_instruments": ["NVDA", "S&P 500"]
+}
+```
+
 ## Time Resolution Expectations
 
 - Version 1 should use a unified 10-minute polling cadence for consistency
@@ -220,6 +248,8 @@ For the detailed convention, see
 - Define a common timestamp and metadata strategy across all sources.
 - Decide which RapidAPI provider categories are worth trialing first for
   shipping, airline, news, or macro ingestion.
+- Decide how curated trend theme labels should be generated, validated, and
+  stored before introducing an LLM or LangGraph enrichment workflow.
 - Decide what qualifies as raw, standardized, and curated output.
 - Decide when Kafka, Spark, Airflow, and Docker become justified rather than
   aspirational.
