@@ -168,39 +168,85 @@ function wordStageTextWidth(stageWidth) {
   return Math.max(180, stageWidth - 22);
 }
 
-function longestTokenLength(word) {
-  return word
-    .split(/\s+/)
-    .filter(Boolean)
-    .reduce((longest, token) => Math.max(longest, token.length), 1);
-}
-
 function planWordTypography(word, score, stageWidth) {
-  const rawSize = clamp(26 + score * 0.48, 34, 70);
-  const usableWidth = wordStageTextWidth(stageWidth);
-  const singleLineCap = usableWidth / (longestTokenLength(word) * 0.54);
-  const canShrinkWithoutFeelingTiny = singleLineCap >= 40;
-  const fontSize = canShrinkWithoutFeelingTiny
-    ? Math.min(rawSize, singleLineCap)
-    : rawSize;
-
   return {
-    fontSize,
-    wordWidth: `${usableWidth}px`,
+    fontSize: clamp(26 + score * 0.48, 34, 70),
+    wordWidth: `${wordStageTextWidth(stageWidth)}px`,
   };
 }
 
 function estimateWordLines(word, fontSize, stageWidth) {
   const usableWidth = wordStageTextWidth(stageWidth);
   const averageCharWidth = fontSize * 0.52;
-  const maxCharsPerLine = Math.max(9, Math.floor(usableWidth / averageCharWidth));
+  const maxCharsPerLine = Math.max(8, Math.floor(usableWidth / averageCharWidth));
+  const tokens = word.split(/\s+/).filter(Boolean);
+  let lineCount = 1;
+  let currentLineLength = 0;
 
-  return Math.max(1, Math.ceil(word.length / maxCharsPerLine));
+  tokens.forEach((token) => {
+    if (token.length > maxCharsPerLine) {
+      if (currentLineLength > 0) {
+        lineCount += 1;
+      }
+
+      lineCount += Math.ceil(token.length / maxCharsPerLine) - 1;
+      currentLineLength = token.length % maxCharsPerLine || maxCharsPerLine;
+      return;
+    }
+
+    if (currentLineLength === 0) {
+      currentLineLength = token.length;
+      return;
+    }
+
+    if (currentLineLength + 1 + token.length <= maxCharsPerLine) {
+      currentLineLength += 1 + token.length;
+      return;
+    }
+
+    lineCount += 1;
+    currentLineLength = token.length;
+  });
+
+  return lineCount;
 }
 
 function estimateWordHeight(word, fontSize, stageWidth) {
   const lineCount = estimateWordLines(word, fontSize, stageWidth);
   return fontSize * 1.04 * lineCount + 10;
+}
+
+function appendBreakableToken(container, token) {
+  if (token.length <= 12) {
+    container.append(document.createTextNode(token));
+    return;
+  }
+
+  const chunkLength = Math.ceil(token.length / Math.ceil(token.length / 8));
+  for (let index = 0; index < token.length; index += chunkLength) {
+    container.append(document.createTextNode(token.slice(index, index + chunkLength)));
+
+    if (index + chunkLength < token.length) {
+      container.append(document.createElement("wbr"));
+    }
+  }
+}
+
+function setBreakableWordText(element, word) {
+  element.replaceChildren();
+  word.split(/(\s+)/).forEach((part) => {
+    if (!part) {
+      return;
+    }
+
+    if (/^\s+$/.test(part)) {
+      element.append(document.createTextNode(part));
+      return;
+    }
+
+    appendBreakableToken(element, part);
+  });
+  element.setAttribute("aria-label", word);
 }
 
 function setPlaying(nextPlaying) {
@@ -294,7 +340,9 @@ function renderSummary(snapshot, topTrends) {
 
 function renderWords(topTrends) {
   const activeWords = new Set(topTrends.map((trend) => trend.word));
-  const stageWidth = elements.wordStage.clientWidth || 900;
+  const measuredStageWidth = elements.wordStage.clientWidth
+    || elements.wordStage.getBoundingClientRect().width;
+  const stageWidth = measuredStageWidth || 300;
   const stageHeight = elements.wordStage.clientHeight || 470;
   const availableHeight = Math.max(280, stageHeight - 36);
 
@@ -328,7 +376,7 @@ function renderWords(topTrends) {
       wordElement = document.createElement("div");
       wordElement.className = "trend-word";
       wordElement.dataset.word = trend.word;
-      wordElement.textContent = trend.word;
+      setBreakableWordText(wordElement, trend.word);
       elements.wordStage.append(wordElement);
     }
 

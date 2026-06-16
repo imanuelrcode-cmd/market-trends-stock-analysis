@@ -7,9 +7,10 @@ full production architecture.
 
 ## First Signal Families
 
-- shipping and vessel movement activity
-- airline and flight activity
 - Google Trends trending-search snapshots
+- GDELT news/event discovery
+- Google News RSS headline streams
+- Wikimedia Pageviews public-attention metrics
 
 ## First Instrument Universe
 
@@ -39,6 +40,8 @@ full production architecture.
 - It keeps the market universe small enough to manage early on.
 - It mixes global and Israel-relevant instruments.
 - It supports both same-window and delayed-correlation research.
+- It matches the dashboard direction: public-attention and narrative signals
+  compared against market instruments.
 
 ## Recommended Early Analysis Style
 
@@ -50,8 +53,13 @@ full production architecture.
 
 ## Version 1 Cadence
 
-- Poll all first-version sources every 10 minutes for a consistent pipeline.
-- Build first-version aggregations on 10-minute windows.
+- Use 10-minute windows as the first shared analytical alignment layer.
+- Poll Google Trends around the 10-minute range only if access remains safe and
+  rate-limit friendly.
+- Poll GDELT around its natural 15-minute update rhythm or coarser.
+- Poll Google News RSS conservatively and deduplicate items before downstream
+  processing.
+- Refresh Wikimedia Pageviews daily or through backfill jobs.
 - Preserve source-native timestamps even when normalizing to 10-minute buckets.
 
 ## Important Caveat
@@ -59,3 +67,5 @@ full production architecture.
 The unified 10-minute cadence is a version-1 simplification for consistency and
 demonstration value. It should not be mistaken for the natural refresh
 frequency or semantic granularity of every source.
+
+For API and access details, see `SOURCE_ACCESS_STRATEGY.md`.

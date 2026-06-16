@@ -85,6 +85,10 @@ committed implementation roadmap.
 ## Source Discovery Channels
 
 - direct public APIs where available
+- GDELT for open news/event discovery
+- Wikimedia Analytics API for clean pageview attention metrics
+- Google News RSS query feeds for lightweight headline ingestion and Kafka
+  practice
 - library-backed unofficial sources such as pytrends
 - RapidAPI marketplace for shipping, airline, news, macro, and alternative
   market-data provider discovery
@@ -110,9 +114,10 @@ committed implementation roadmap.
 
 ### First External Sources
 
-- shipping and vessel activity
-- airline and flight activity
 - Google Trends trending snapshots
+- GDELT news/event snapshots
+- Google News RSS headline snapshots
+- Wikimedia Pageviews entity attention snapshots
 
 ### First Market Universe
 
@@ -124,8 +129,12 @@ committed implementation roadmap.
 
 - Version 1 should use a unified 10-minute polling and aggregation cadence.
 - Google Trends trending data fits well into a 10-minute snapshot schedule.
-- Shipping and airline sources are likely most useful initially as aggregated
-  activity signals, anomaly signals, and region/time-window counts.
+- GDELT should follow its natural 15-minute update rhythm or a coarser demo
+  schedule.
+- Google News RSS is especially useful as a small Kafka producer source, but
+  needs deduplication.
+- Wikimedia Pageviews should be daily/backfill-oriented rather than 10-minute
+  polling.
 - If RapidAPI providers are tested, capture provider-specific metadata,
   response-shape differences, and cost constraints from the start.
 - The first implementation should optimize for end-to-end demonstrability as a

@@ -108,9 +108,11 @@ become clearer.
 
 The first externally-oriented signal families to prioritize are:
 
-- global shipping and vessel movement activity
-- global airline and flight activity
 - Google Trends trending-search snapshots
+- GDELT news/event discovery
+- Google News RSS headline streams
+- Wikimedia Pageviews public-attention metrics
+- selected market close and ETF/instrument price series
 
 These sources are intended to support both broad monitoring and correlation
 analysis against the selected market instruments.
@@ -123,9 +125,17 @@ For the first version of the platform:
 - prefer aggregated airline indicators over per-flight intelligence
 - collect top Google Trends snapshots rather than trying to infer exact search
   counts
+- use GDELT as the primary open news/event discovery source for market-relevant
+  narratives
+- use Google News RSS as a lightweight headline stream and Kafka practice source
+- use Wikimedia Pageviews as a clean supporting attention metric for known
+  entities and topics
 - start with correlation and lag monitoring before attempting prediction
 - use RapidAPI as a candidate source-discovery channel when direct public APIs
   are not practical for shipping, airline, news, or macro signals
+
+Detailed source access notes are maintained in
+[Source Access Strategy](SOURCE_ACCESS_STRATEGY.md).
 
 ## Business Domains
 
@@ -188,6 +198,13 @@ Candidate curated output shape:
   lag analysis are core design concerns.
 - Google Trends snapshots should be collected on a 10-minute cadence, which
   matches the source's approximate refresh rhythm well enough for version 1.
+- GDELT 2.0 naturally updates around every 15 minutes, so it can be polled on a
+  15-minute or coarser cadence unless a demo requires a simpler unified
+  schedule.
+- Google News RSS is useful for Kafka practice, but should use conservative
+  polling and deduplication rather than aggressive scraping.
+- Wikimedia Pageviews should be refreshed daily or through backfill jobs because
+  pageview metrics naturally aggregate by day/month.
 
 ## Logging Strategy
 
@@ -237,6 +254,10 @@ For the detailed convention, see
   so the project stays close to the open-source, vanilla Kafka distribution.
 - Prefer default service ports internally and keep host-port remapping easy so
   the local stack can adapt as more services are added later.
+- Treat GDELT, Wikimedia Pageviews, and Google News RSS as remembered Version 1
+  source candidates for dashboard-style narrative and attention analysis.
+- Treat source access details in `docs/architecture/SOURCE_ACCESS_STRATEGY.md`
+  as the project memory for future ingestion discussions.
 
 ## Suggested Next Decisions
 
@@ -246,6 +267,8 @@ For the detailed convention, see
 - Decide how Google Trends snapshots should be stored and versioned.
 - Map each course tool to a deliberate role in the architecture.
 - Define a common timestamp and metadata strategy across all sources.
+- Define the first tracked query/entity list for GDELT, Google News RSS,
+  Wikimedia Pageviews, and Google Trends.
 - Decide which RapidAPI provider categories are worth trialing first for
   shipping, airline, news, or macro ingestion.
 - Decide how curated trend theme labels should be generated, validated, and

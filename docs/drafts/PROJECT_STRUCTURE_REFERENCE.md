@@ -34,9 +34,21 @@ Owns stock prices, OHLCV data, ticker metadata, and related market datasets.
 Owns trend and public-interest signals such as keyword popularity or related
 search activity.
 
+Initial ingestion subfolders:
+
+- `ingestion/google_trends/`: Google Trends and PyTrends-based search-interest
+  snapshots.
+- `ingestion/wikipedia_pageviews/`: Wikimedia Pageviews entity-attention
+  snapshots.
+
 ### news/
 
 Reserved for news ingestion and event-oriented content processing.
+
+Initial ingestion subfolders:
+
+- `ingestion/gdelt/`: GDELT news/event and article-search ingestion.
+- `ingestion/google_news_rss/`: Google News RSS headline-feed ingestion.
 
 ### sentiment/
 

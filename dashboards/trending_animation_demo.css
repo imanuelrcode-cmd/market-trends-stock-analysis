@@ -224,6 +224,7 @@ h2 {
 .trend-word {
   position: relative;
   box-sizing: border-box;
+  min-width: 0;
   width: min(var(--word-width, 100%), 100%);
   max-width: calc(100% - 4px);
   padding: 3px 4px;
@@ -234,6 +235,7 @@ h2 {
   line-height: 1.02;
   text-align: center;
   text-wrap: balance;
+  white-space: normal;
   overflow-wrap: anywhere;
   word-break: normal;
   hyphens: auto;

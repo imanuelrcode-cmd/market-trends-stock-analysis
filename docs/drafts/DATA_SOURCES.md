@@ -37,11 +37,96 @@ Used to collect:
 ### Notes
 - pytrends is unofficial
 - Google rate limiting may occur
+- Google introduced an official Trends API in alpha in 2025, but project access
+  should still be treated as limited until verified
 - suitable for academic/research usage
 
 ---
 
-# 2. Stock Market Data
+## 2. GDELT
+
+### Tool
+- GDELT DOC 2.0 API, GDELT raw data files, or BigQuery exports
+
+### Website
+https://www.gdeltproject.org/data.html
+
+### Purpose
+Used to collect:
+- news article evidence
+- event and narrative discovery signals
+- entities, themes, locations, and media attention
+- source evidence for dashboard narrative markers
+
+### Why It Fits This Project
+- broad free/open news and event source
+- GDELT 2.0 updates every 15 minutes
+- useful for discovering why a trend may be moving, not only that it is moving
+- can later support curated labels such as "Data center buildout" with evidence
+
+### Initial Access Pattern
+Start with query-based DOC API snapshots rather than full global ingestion.
+
+Example shape:
+`https://api.gdeltproject.org/api/v2/doc/doc?query=semiconductor&mode=ArtList&format=json`
+
+---
+
+## 3. Google News RSS
+
+### Tool
+- RSS feed ingestion
+
+### Access Pattern
+`https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en`
+
+### Purpose
+Used to collect:
+- timely headlines
+- source/publisher snippets
+- simple query-driven news streams
+- Kafka practice data
+
+### Important Notes
+- Treat this as a practical RSS pattern, not a formal guaranteed API contract.
+- Good for lightweight demo and streaming practice.
+- Requires deduplication because headlines can repeat, update, or redirect.
+
+---
+
+## 4. Wikimedia Pageviews
+
+### Tool
+- Wikimedia Analytics API
+
+### Documentation
+https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/reference/page-views.html
+
+### Purpose
+Used to collect:
+- public attention counts for known pages and entities
+- daily attention around companies, topics, and sector themes
+- clean supporting metrics for dashboard overlays or annotations
+
+### Initial Access Pattern
+Endpoint shape:
+`https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/{project}/{access}/{agent}/{article}/{granularity}/{start}/{end}`
+
+Example dimensions:
+- project: `en.wikipedia.org`
+- access: `all-access`
+- agent: `user`
+- granularity: `daily`
+
+### Important Notes
+- Best used as a supporting signal for known entities, not as primary narrative
+  discovery.
+- Use a descriptive User-Agent when implementing collectors.
+- Daily refresh/backfill fits better than 10-minute polling.
+
+---
+
+# 5. Stock Market Data
 
 ## Tool
 - yfinance
@@ -63,7 +148,7 @@ Used to collect:
 
 ---
 
-# 3. RapidAPI Marketplace
+# 6. RapidAPI Marketplace
 
 ## Tool
 - RapidAPI
@@ -108,8 +193,6 @@ Potential usage:
 Potential future integrations:
 - Reddit APIs
 - NewsAPI
-- RSS feeds
-- GDELT
 
 Purpose:
 - sentiment analysis
@@ -125,12 +208,19 @@ Version 1 of the project should focus on:
 | Data Type | Source |
 |---|---|
 | Trends | pytrends |
+| News and events | GDELT |
+| Headline stream | Google News RSS |
+| Public attention | Wikimedia Pageviews |
 | Stock Prices | yfinance |
 
-This minimizes architectural complexity while still enabling meaningful analysis.
+This keeps the first dashboard close to the current demo: animated trend terms
+and narrative markers on one side, market prices and ETFs on the other.
 
 RapidAPI should be treated as an optional source-discovery path for future
 shipping, airline, news, macro, and alternative market-signal experiments.
+
+Detailed API access notes are maintained in
+`docs/architecture/SOURCE_ACCESS_STRATEGY.md`.
 
 ---
 
